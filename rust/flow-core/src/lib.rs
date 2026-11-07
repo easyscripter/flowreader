@@ -1,9 +1,11 @@
-//! FlowReader core: block format, hyphenation and import logic.
+//! FlowReader core: block format, CBOR codec, text processing and the import
+//! contract shared by the reader and the PDF converter.
+#![deny(missing_docs)]
 
 pub mod codec;
-pub mod hyphen;
 pub mod import;
 pub mod model;
+pub mod text;
 
 pub use codec::{decode, encode, FormatError};
 

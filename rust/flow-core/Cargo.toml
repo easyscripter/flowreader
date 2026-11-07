@@ -10,3 +10,6 @@ serde = { version = "1.0.229", features = ["derive"] }
 serde_bytes = "0.11.19"
 thiserror = "2.0.21"
 hyphenation = { version = "0.8.4", default-features = false }
+
+[lints]
+workspace = true

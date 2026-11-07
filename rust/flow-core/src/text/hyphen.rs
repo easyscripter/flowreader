@@ -4,27 +4,39 @@
 //! hyphen, shorter than [`MIN_WORD_LETTERS`] letters, fully uppercase, written
 //! in mixed scripts or already containing a soft hyphen are left untouched.
 
-use hyphenation::{Hyphenator as _, Language, Load, Standard};
 use std::io::Cursor;
 
-static RU_DICT: &[u8] = include_bytes!("../dictionaries/ru.standard.bincode");
-static EN_US_DICT: &[u8] = include_bytes!("../dictionaries/en-us.standard.bincode");
+use hyphenation::{Hyphenator as _, Language, Load, Standard};
 
+static RU_DICT: &[u8] = include_bytes!("../../dictionaries/ru.standard.bincode");
+static EN_US_DICT: &[u8] = include_bytes!("../../dictionaries/en-us.standard.bincode");
+
+/// Soft hyphen.
 const SHY: char = '\u{AD}';
-const MIN_WORD_LETTERS: usize = 5;
+/// Words shorter than this are never hyphenated.
+pub const MIN_WORD_LETTERS: usize = 5;
+/// Minimum letters before the first break.
 const MIN_BEFORE: usize = 2;
+/// Minimum letters after the last break.
 const MIN_AFTER: usize = 2;
+
+/// Why the hyphenator could not be created.
+#[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
+pub enum HyphenError {
+    /// A bundled dictionary could not be parsed.
+    #[error("cannot load {lang} hyphenation dictionary: {reason}")]
+    Dictionary {
+        /// Language code of the dictionary.
+        lang: &'static str,
+        /// Parser error.
+        reason: String,
+    },
+}
 
 /// Inserts soft hyphens into Russian (Cyrillic) and English (Latin) words.
 pub struct Hyphenator {
     ru: Standard,
     en: Standard,
-}
-
-impl Default for Hyphenator {
-    fn default() -> Self {
-        Self::new()
-    }
 }
 
 #[derive(Clone, Copy, PartialEq)]
@@ -35,15 +47,20 @@ enum Script {
 
 fn script_of(c: char) -> Option<Script> {
     match c {
-        '\u{0400}'..='\u{052F}' | '\u{1C80}'..='\u{1C8F}' | '\u{2DE0}'..='\u{2DFF}'
+        '\u{0400}'..='\u{052F}'
+        | '\u{1C80}'..='\u{1C8F}'
+        | '\u{2DE0}'..='\u{2DFF}'
         | '\u{A640}'..='\u{A69F}' => Some(Script::Cyrillic),
         'A'..='Z' | 'a'..='z' => Some(Script::Latin),
         _ => None,
     }
 }
 
-fn load(lang: Language, bytes: &'static [u8]) -> Standard {
-    Standard::from_reader(lang, &mut Cursor::new(bytes)).expect("bundled dictionary is valid")
+fn load(lang: Language, code: &'static str, bytes: &'static [u8]) -> Result<Standard, HyphenError> {
+    Standard::from_reader(lang, &mut Cursor::new(bytes)).map_err(|e| HyphenError::Dictionary {
+        lang: code,
+        reason: e.to_string(),
+    })
 }
 
 fn is_joiner(c: char) -> bool {
@@ -55,11 +72,14 @@ impl Hyphenator {
     ///
     /// This parses the dictionaries, so it is relatively expensive: create
     /// one `Hyphenator` and reuse it.
-    pub fn new() -> Self {
-        Hyphenator {
-            ru: load(Language::Russian, RU_DICT),
-            en: load(Language::EnglishUS, EN_US_DICT),
-        }
+    ///
+    /// # Errors
+    /// Returns [`HyphenError::Dictionary`] if a bundled dictionary is damaged.
+    pub fn new() -> Result<Self, HyphenError> {
+        Ok(Hyphenator {
+            ru: load(Language::Russian, "ru", RU_DICT)?,
+            en: load(Language::EnglishUS, "en-us", EN_US_DICT)?,
+        })
     }
 
     /// Returns `text` with U+00AD inserted at permitted break points.
@@ -76,15 +96,17 @@ impl Hyphenator {
             }
             let mut end = start;
             while let Some(&(i, ch)) = iter.peek() {
-                if ch.is_alphabetic() {
-                    end = i + ch.len_utf8();
-                    iter.next();
-                } else {
+                if !ch.is_alphabetic() {
                     break;
                 }
+                end = i + ch.len_utf8();
+                iter.next();
             }
-            let word = &text[start..end];
-            let next = text[end..].chars().next();
+            // `start..end` come from `char_indices`, so the slice is always valid.
+            let Some(word) = text.get(start..end) else {
+                continue;
+            };
+            let next = text.get(end..).and_then(|rest| rest.chars().next());
             let attached = prev.is_some_and(is_joiner) || next.is_some_and(is_joiner);
             if attached {
                 out.push_str(word);
@@ -98,7 +120,7 @@ impl Hyphenator {
 
     fn hyphenate_word(&self, word: &str, out: &mut String) {
         let letters = word.chars().count();
-        if letters < MIN_WORD_LETTERS || letters < MIN_BEFORE + MIN_AFTER {
+        if letters < MIN_WORD_LETTERS {
             out.push_str(word);
             return;
         }
@@ -119,26 +141,24 @@ impl Hyphenator {
             _ => &self.en,
         };
         let lower = word.to_lowercase();
-        if lower.chars().count() != letters {
-            return out.push_str(word);
-        }
-        let breaks = dict.hyphenate(&lower).breaks;
-        if breaks.is_empty() {
+        // Break offsets are byte positions in `lower`; they only map onto `word`
+        // when lowercasing kept every character's byte length.
+        if lower.len() != word.len() || lower.chars().count() != letters {
             return out.push_str(word);
         }
         let mut last = 0;
-        for b in breaks {
-            if !word.is_char_boundary(b) || lower.len() != word.len() {
+        for b in dict.hyphenate(&lower).breaks {
+            let (Some(head), Some(piece)) = (word.get(..b), word.get(last..b)) else {
+                continue;
+            };
+            let before = head.chars().count();
+            if before < MIN_BEFORE || letters.saturating_sub(before) < MIN_AFTER {
                 continue;
             }
-            let before = word[..b].chars().count();
-            if before < MIN_BEFORE || letters - before < MIN_AFTER {
-                continue;
-            }
-            out.push_str(&word[last..b]);
+            out.push_str(piece);
             out.push(SHY);
             last = b;
         }
-        out.push_str(&word[last..]);
+        out.push_str(word.get(last..).unwrap_or_default());
     }
 }

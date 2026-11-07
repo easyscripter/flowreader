@@ -9,5 +9,6 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 // These functions are ignored because they are not marked as `pub`: `hyphenator`
 
 /// Inserts soft hyphens (U+00AD) at allowed break points of ru/en words.
+/// Returns the text unchanged if the dictionaries are unavailable.
 String hyphenate({required String text}) =>
     RustLib.instance.api.crateApiTextHyphenate(text: text);

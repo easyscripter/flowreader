@@ -6,3 +6,23 @@ members = ["flow-core", "bridge"]
 version = "0.1.0"
 edition = "2021"
 license = "GPL-3.0-only"
+
+# Lints shared by every crate (see AGENTS.md, section 4). Run with
+# `cargo clippy --all-targets -- -D warnings`.
+[workspace.lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }
+
+[workspace.lints.clippy]
+# No panics in library code: return typed errors instead.
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+unreachable = "deny"
+todo = "deny"
+unimplemented = "deny"
+indexing_slicing = "deny"
+# Number casts that can silently lose data (from clippy::pedantic).
+cast_possible_truncation = "warn"
+cast_sign_loss = "warn"
+cast_precision_loss = "warn"
+cast_lossless = "warn"

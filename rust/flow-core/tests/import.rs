@@ -1,14 +1,27 @@
-use flow_core::import::{CancelToken, Converter, ImportError, Progress, SourceKind, Stage, StubConverter};
+use flow_core::import::{
+    CancelToken, Converter, ImportError, Progress, SourceKind, Stage, StubConverter,
+};
 use std::io::Cursor;
 
 #[test]
 fn stub_reports_progress_then_unsupported() {
     let mut src = Cursor::new(Vec::<u8>::new());
     let mut events = Vec::new();
-    let r = StubConverter.convert(&mut src, SourceKind::Pdf, &mut |p| events.push(p), &CancelToken::new());
+    let r = StubConverter.convert(
+        &mut src,
+        SourceKind::Pdf,
+        &mut |p| events.push(p),
+        &CancelToken::new(),
+    );
     assert_eq!(
         events,
-        (1..=3).map(|d| Progress { stage: Stage::Pages, done: d, total: 3 }).collect::<Vec<_>>()
+        (1..=3)
+            .map(|d| Progress {
+                stage: Stage::Pages,
+                done: d,
+                total: 3
+            })
+            .collect::<Vec<_>>()
     );
     assert!(matches!(r, Err(ImportError::Unsupported(SourceKind::Pdf))));
 }
