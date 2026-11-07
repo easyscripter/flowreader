@@ -40,6 +40,24 @@ fn keeps_short_and_hyphenated_words() {
     }
 }
 
+/// Only the hyphen-joiner rule protects these (all are >= 5 letters per part).
+#[test]
+fn keeps_long_hyphenated_words() {
+    let h = Hyphenator::new();
+    for w in ["научно-исследовательский", "северо-западный", "state-of-the-art-technology"] {
+        assert_eq!(h.hyphenate(w), w);
+    }
+}
+
+/// Only the all-caps rule protects these.
+#[test]
+fn keeps_long_all_caps_words() {
+    let h = Hyphenator::new();
+    for w in ["ПРОГРАММИРОВАНИЕ", "HYPHENATION"] {
+        assert_eq!(h.hyphenate(w), w);
+    }
+}
+
 #[test]
 fn mixed_text() {
     let h = Hyphenator::new();
