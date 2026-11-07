@@ -204,6 +204,8 @@ rust/flow-core/dictionaries/   данные переносов + NOTICE.md
 - [ ] `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test` (из `rust/`).
 - [ ] `dart format --set-exit-if-changed .`, `flutter analyze`, `dart run custom_lint`, `flutter test`.
 - [ ] Кодогенерация актуальна (`build_runner`, `flutter_rust_bridge_codegen generate`) и закоммичена.
+      Любое изменение в `rust/bridge/src/api/` (даже комментарий) меняет отпечаток API: перегенерируй мост, а перед
+      QA собирай после `flutter clean` — иначе приложение падает при старте с «Content hash … is different».
 
 QA
 - [ ] Прогон на Pixel 7 по сценариям спеки; скриншоты и отчёт в PR (для задач с интерфейсом).
