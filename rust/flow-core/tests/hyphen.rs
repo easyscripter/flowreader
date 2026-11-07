@@ -69,3 +69,26 @@ fn leaves_words_with_existing_soft_hyphens() {
     let src = "программи\u{AD}рование";
     assert_eq!(h.hyphenate(src), src);
 }
+
+#[test]
+fn margins_hold_for_long_ru_and_en_words() {
+    let h = Hyphenator::new();
+    for w in ["программирование", "interoperability", "international"] {
+        let out = h.hyphenate(w);
+        assert!(out.contains(SHY), "{out:?}");
+        assert_eq!(out.replace(SHY, ""), w);
+        for (l, r) in letters_before_after(&out) {
+            assert!(l >= 2 && r >= 2, "{out:?}");
+        }
+    }
+}
+
+#[test]
+fn uppercase_initial_word_is_hyphenated() {
+    let h = Hyphenator::new();
+    let out = h.hyphenate("Программирование");
+    assert!(out.contains(SHY), "{out:?}");
+    assert_eq!(out.replace(SHY, ""), "Программирование");
+    let out = h.hyphenate("Interoperability");
+    assert!(out.contains(SHY), "{out:?}");
+}

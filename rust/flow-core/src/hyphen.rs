@@ -5,6 +5,10 @@
 //! in mixed scripts or already containing a soft hyphen are left untouched.
 
 use hyphenation::{Hyphenator as _, Language, Load, Standard};
+use std::io::Cursor;
+
+static RU_DICT: &[u8] = include_bytes!("../dictionaries/ru.standard.bincode");
+static EN_US_DICT: &[u8] = include_bytes!("../dictionaries/en-us.standard.bincode");
 
 const SHY: char = '\u{AD}';
 const MIN_WORD_LETTERS: usize = 5;
@@ -38,16 +42,23 @@ fn script_of(c: char) -> Option<Script> {
     }
 }
 
+fn load(lang: Language, bytes: &'static [u8]) -> Standard {
+    Standard::from_reader(lang, &mut Cursor::new(bytes)).expect("bundled dictionary is valid")
+}
+
 fn is_joiner(c: char) -> bool {
     c == '-' || c == '\u{2010}' || c == SHY
 }
 
 impl Hyphenator {
-    /// Loads the embedded `ru` and `en-us` dictionaries.
+    /// Loads the bundled `ru` and `en-us` dictionaries.
+    ///
+    /// This parses the dictionaries, so it is relatively expensive: create
+    /// one `Hyphenator` and reuse it.
     pub fn new() -> Self {
         Hyphenator {
-            ru: Standard::from_embedded(Language::Russian).expect("embedded ru dictionary"),
-            en: Standard::from_embedded(Language::EnglishUS).expect("embedded en-us dictionary"),
+            ru: load(Language::Russian, RU_DICT),
+            en: load(Language::EnglishUS, EN_US_DICT),
         }
     }
 
