@@ -3,7 +3,8 @@
 //!
 //! The v1 encoding is frozen: new optional fields must use `#[serde(default)]`;
 //! renames, removals or variant changes require bumping `FORMAT_VERSION` and
-//! regenerating `tests/fixtures/book_v1.cbor`.
+//! regenerating `tests/fixtures/book_v1.cbor` with
+//! `cargo test -p flow-core -- --ignored regenerate_golden_fixture`.
 
 use serde::{Deserialize, Serialize};
 
