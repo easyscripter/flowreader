@@ -3,6 +3,7 @@
 
 // ignore_for_file: unused_import, unused_element, unnecessary_import, duplicate_ignore, invalid_use_of_internal_member, annotate_overrides, non_constant_identifier_names, curly_braces_in_flow_control_structures, prefer_const_literals_to_create_immutables, unused_field
 
+import 'api/import.dart';
 import 'api/simple.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -66,19 +67,28 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => -1918914929;
+  int get rustContentHash => -342439469;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
         stem: 'rust_lib_flowreader',
-        ioDirectory: 'rust/target/release/',
+        ioDirectory: 'rust/bridge/target/release/',
         webPrefix: 'pkg/',
         wasmBindgenName: 'wasm_bindgen',
       );
 }
 
 abstract class RustLibApi extends BaseApi {
+  Future<void> crateApiImportCancelImport({required PlatformInt64 jobId});
+
+  Future<int> crateApiImportDebugOpenFd({required String path});
+
   String crateApiSimpleGreet({required String name});
+
+  Stream<ImportEvent> crateApiImportImportBook({
+    required int fd,
+    required SourceKind kind,
+  });
 
   Future<void> crateApiSimpleInitApp();
 }
@@ -92,13 +102,69 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   });
 
   @override
+  Future<void> crateApiImportCancelImport({required PlatformInt64 jobId}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_i_64(jobId, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 1,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_unit,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiImportCancelImportConstMeta,
+        argValues: [jobId],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiImportCancelImportConstMeta =>
+      const TaskConstMeta(debugName: "cancel_import", argNames: ["jobId"]);
+
+  @override
+  Future<int> crateApiImportDebugOpenFd({required String path}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(path, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 2,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_i_32,
+          decodeErrorData: sse_decode_String,
+        ),
+        constMeta: kCrateApiImportDebugOpenFdConstMeta,
+        argValues: [path],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiImportDebugOpenFdConstMeta =>
+      const TaskConstMeta(debugName: "debug_open_fd", argNames: ["path"]);
+
+  @override
   String crateApiSimpleGreet({required String name}) {
     return handler.executeSync(
       SyncTask(
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_String(name, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 1)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 3)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_String,
@@ -115,6 +181,45 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: "greet", argNames: ["name"]);
 
   @override
+  Stream<ImportEvent> crateApiImportImportBook({
+    required int fd,
+    required SourceKind kind,
+  }) {
+    final sink = RustStreamSink<ImportEvent>();
+    unawaited(
+      handler.executeNormal(
+        NormalTask(
+          callFfi: (port_) {
+            final serializer = SseSerializer(generalizedFrbRustBinding);
+            sse_encode_i_32(fd, serializer);
+            sse_encode_source_kind(kind, serializer);
+            sse_encode_StreamSink_import_event_Sse(sink, serializer);
+            pdeCallFfi(
+              generalizedFrbRustBinding,
+              serializer,
+              funcId: 4,
+              port: port_,
+            );
+          },
+          codec: SseCodec(
+            decodeSuccessData: sse_decode_unit,
+            decodeErrorData: null,
+          ),
+          constMeta: kCrateApiImportImportBookConstMeta,
+          argValues: [fd, kind, sink],
+          apiImpl: this,
+        ),
+      ),
+    );
+    return sink.stream;
+  }
+
+  TaskConstMeta get kCrateApiImportImportBookConstMeta => const TaskConstMeta(
+    debugName: "import_book",
+    argNames: ["fd", "kind", "sink"],
+  );
+
+  @override
   Future<void> crateApiSimpleInitApp() {
     return handler.executeNormal(
       NormalTask(
@@ -123,7 +228,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 2,
+            funcId: 5,
             port: port_,
           );
         },
@@ -142,15 +247,120 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: "init_app", argNames: []);
 
   @protected
+  AnyhowException dco_decode_AnyhowException(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return AnyhowException(raw as String);
+  }
+
+  @protected
+  RustStreamSink<ImportEvent> dco_decode_StreamSink_import_event_Sse(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    throw UnimplementedError();
+  }
+
+  @protected
   String dco_decode_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as String;
   }
 
   @protected
+  ImportError dco_decode_box_autoadd_import_error(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_import_error(raw);
+  }
+
+  @protected
+  Progress dco_decode_box_autoadd_progress(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_progress(raw);
+  }
+
+  @protected
+  int dco_decode_i_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as int;
+  }
+
+  @protected
+  PlatformInt64 dco_decode_i_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dcoDecodeI64(raw);
+  }
+
+  @protected
+  ImportError dco_decode_import_error(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    switch (raw[0]) {
+      case 0:
+        return ImportError_NoTextLayer();
+      case 1:
+        return ImportError_Corrupted(dco_decode_String(raw[1]));
+      case 2:
+        return ImportError_OutOfMemory();
+      case 3:
+        return ImportError_Unsupported(dco_decode_source_kind(raw[1]));
+      case 4:
+        return ImportError_Cancelled();
+      default:
+        throw Exception("unreachable");
+    }
+  }
+
+  @protected
+  ImportEvent dco_decode_import_event(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    switch (raw[0]) {
+      case 0:
+        return ImportEvent_Started(dco_decode_i_64(raw[1]));
+      case 1:
+        return ImportEvent_Progress(dco_decode_box_autoadd_progress(raw[1]));
+      case 2:
+        return ImportEvent_Done(dco_decode_list_prim_u_8_strict(raw[1]));
+      case 3:
+        return ImportEvent_Failed(dco_decode_box_autoadd_import_error(raw[1]));
+      default:
+        throw Exception("unreachable");
+    }
+  }
+
+  @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as Uint8List;
+  }
+
+  @protected
+  Progress dco_decode_progress(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return Progress(
+      stage: dco_decode_stage(arr[0]),
+      done: dco_decode_u_32(arr[1]),
+      total: dco_decode_u_32(arr[2]),
+    );
+  }
+
+  @protected
+  SourceKind dco_decode_source_kind(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return SourceKind.values[raw as int];
+  }
+
+  @protected
+  Stage dco_decode_stage(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return Stage.values[raw as int];
+  }
+
+  @protected
+  int dco_decode_u_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as int;
   }
 
   @protected
@@ -166,6 +376,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_String(deserializer);
+    return AnyhowException(inner);
+  }
+
+  @protected
+  RustStreamSink<ImportEvent> sse_decode_StreamSink_import_event_Sse(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    throw UnimplementedError('Unreachable ()');
+  }
+
+  @protected
   String sse_decode_String(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_list_prim_u_8_strict(deserializer);
@@ -173,10 +398,111 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  ImportError sse_decode_box_autoadd_import_error(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_import_error(deserializer));
+  }
+
+  @protected
+  Progress sse_decode_box_autoadd_progress(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_progress(deserializer));
+  }
+
+  @protected
+  int sse_decode_i_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getInt32();
+  }
+
+  @protected
+  PlatformInt64 sse_decode_i_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getPlatformInt64();
+  }
+
+  @protected
+  ImportError sse_decode_import_error(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var tag_ = sse_decode_i_32(deserializer);
+    switch (tag_) {
+      case 0:
+        return ImportError_NoTextLayer();
+      case 1:
+        var var_field0 = sse_decode_String(deserializer);
+        return ImportError_Corrupted(var_field0);
+      case 2:
+        return ImportError_OutOfMemory();
+      case 3:
+        var var_field0 = sse_decode_source_kind(deserializer);
+        return ImportError_Unsupported(var_field0);
+      case 4:
+        return ImportError_Cancelled();
+      default:
+        throw UnimplementedError('');
+    }
+  }
+
+  @protected
+  ImportEvent sse_decode_import_event(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var tag_ = sse_decode_i_32(deserializer);
+    switch (tag_) {
+      case 0:
+        var var_field0 = sse_decode_i_64(deserializer);
+        return ImportEvent_Started(var_field0);
+      case 1:
+        var var_field0 = sse_decode_box_autoadd_progress(deserializer);
+        return ImportEvent_Progress(var_field0);
+      case 2:
+        var var_field0 = sse_decode_list_prim_u_8_strict(deserializer);
+        return ImportEvent_Done(var_field0);
+      case 3:
+        var var_field0 = sse_decode_box_autoadd_import_error(deserializer);
+        return ImportEvent_Failed(var_field0);
+      default:
+        throw UnimplementedError('');
+    }
+  }
+
+  @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var len_ = sse_decode_i_32(deserializer);
     return deserializer.buffer.getUint8List(len_);
+  }
+
+  @protected
+  Progress sse_decode_progress(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_stage = sse_decode_stage(deserializer);
+    var var_done = sse_decode_u_32(deserializer);
+    var var_total = sse_decode_u_32(deserializer);
+    return Progress(stage: var_stage, done: var_done, total: var_total);
+  }
+
+  @protected
+  SourceKind sse_decode_source_kind(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return SourceKind.values[inner];
+  }
+
+  @protected
+  Stage sse_decode_stage(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return Stage.values[inner];
+  }
+
+  @protected
+  int sse_decode_u_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getUint32();
   }
 
   @protected
@@ -191,21 +517,109 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  int sse_decode_i_32(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    return deserializer.buffer.getInt32();
-  }
-
-  @protected
   bool sse_decode_bool(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getUint8() != 0;
   }
 
   @protected
+  void sse_encode_AnyhowException(
+    AnyhowException self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.message, serializer);
+  }
+
+  @protected
+  void sse_encode_StreamSink_import_event_Sse(
+    RustStreamSink<ImportEvent> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(
+      self.setupAndSerialize(
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_import_event,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+      ),
+      serializer,
+    );
+  }
+
+  @protected
   void sse_encode_String(String self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_list_prim_u_8_strict(utf8.encoder.convert(self), serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_import_error(
+    ImportError self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_import_error(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_progress(
+    Progress self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_progress(self, serializer);
+  }
+
+  @protected
+  void sse_encode_i_32(int self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putInt32(self);
+  }
+
+  @protected
+  void sse_encode_i_64(PlatformInt64 self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putPlatformInt64(self);
+  }
+
+  @protected
+  void sse_encode_import_error(ImportError self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    switch (self) {
+      case ImportError_NoTextLayer():
+        sse_encode_i_32(0, serializer);
+      case ImportError_Corrupted(field0: final field0):
+        sse_encode_i_32(1, serializer);
+        sse_encode_String(field0, serializer);
+      case ImportError_OutOfMemory():
+        sse_encode_i_32(2, serializer);
+      case ImportError_Unsupported(field0: final field0):
+        sse_encode_i_32(3, serializer);
+        sse_encode_source_kind(field0, serializer);
+      case ImportError_Cancelled():
+        sse_encode_i_32(4, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_import_event(ImportEvent self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    switch (self) {
+      case ImportEvent_Started(field0: final field0):
+        sse_encode_i_32(0, serializer);
+        sse_encode_i_64(field0, serializer);
+      case ImportEvent_Progress(field0: final field0):
+        sse_encode_i_32(1, serializer);
+        sse_encode_box_autoadd_progress(field0, serializer);
+      case ImportEvent_Done(field0: final field0):
+        sse_encode_i_32(2, serializer);
+        sse_encode_list_prim_u_8_strict(field0, serializer);
+      case ImportEvent_Failed(field0: final field0):
+        sse_encode_i_32(3, serializer);
+        sse_encode_box_autoadd_import_error(field0, serializer);
+    }
   }
 
   @protected
@@ -219,6 +633,32 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_progress(Progress self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_stage(self.stage, serializer);
+    sse_encode_u_32(self.done, serializer);
+    sse_encode_u_32(self.total, serializer);
+  }
+
+  @protected
+  void sse_encode_source_kind(SourceKind self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_stage(Stage self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_u_32(int self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putUint32(self);
+  }
+
+  @protected
   void sse_encode_u_8(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putUint8(self);
@@ -227,12 +667,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   @protected
   void sse_encode_unit(void self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-  }
-
-  @protected
-  void sse_encode_i_32(int self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    serializer.buffer.putInt32(self);
   }
 
   @protected
