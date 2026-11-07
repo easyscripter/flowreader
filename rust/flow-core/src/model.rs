@@ -1,5 +1,9 @@
 //! Block format v1: the book representation exchanged between importers,
 //! the PDF converter and the renderer.
+//!
+//! The v1 encoding is frozen: new optional fields must use `#[serde(default)]`;
+//! renames, removals or variant changes require bumping `FORMAT_VERSION` and
+//! regenerating `tests/fixtures/book_v1.cbor`.
 
 use serde::{Deserialize, Serialize};
 
@@ -108,5 +112,6 @@ pub struct ResourceId(pub u32);
 pub struct Resource {
     pub id: ResourceId,
     pub mime: String,
+    #[serde(with = "serde_bytes")]
     pub data: Vec<u8>,
 }

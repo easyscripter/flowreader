@@ -88,3 +88,28 @@ fn newer_format_rejected_even_if_body_unknown() {
 fn garbage_is_corrupt() {
     assert!(matches!(decode(b"xyz"), Err(FormatError::Corrupt(_))));
 }
+
+#[test]
+fn resource_data_is_cbor_byte_string() {
+    let mut book = sample_book();
+    book.blocks.clear();
+    book.resources = vec![Resource { id: ResourceId(0), mime: "image/png".into(), data: vec![7u8; 10_000] }];
+    let bytes = encode(&book);
+    assert!(bytes.len() < 11_000, "encoded size {}", bytes.len());
+    assert_eq!(decode(&bytes).unwrap(), book);
+}
+
+const FIXTURE: &str = "tests/fixtures/book_v1.cbor";
+
+#[test]
+fn golden_fixture_matches() {
+    let book = sample_book();
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(FIXTURE);
+    if std::env::var_os("FLOW_REGEN_FIXTURE").is_some() {
+        std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+        std::fs::write(&path, encode(&book)).unwrap();
+    }
+    let golden = std::fs::read(&path).expect("fixture missing");
+    assert_eq!(encode(&book), golden, "encoding changed; see model.rs docs");
+    assert_eq!(decode(&golden).unwrap(), book);
+}
