@@ -1,0 +1,23 @@
+# Package (and library) name must equal `libname` in rust_builder/android/build.gradle:
+# cargokit looks for lib<package>.so, and the generated Dart loader uses the same stem.
+# The crate lives in rust/bridge (workspace member "bridge").
+[package]
+name = "rust_lib_flowreader"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib", "staticlib", "rlib"]
+
+[features]
+default = []
+# PDF import support (disabled by default).
+pdf = []
+
+[dependencies]
+flow-core = { path = "../flow-core" }
+flutter_rust_bridge = "=2.13.0"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }

@@ -1,0 +1,7 @@
+{
+  "@@locale": "en",
+  "appTitle": "FlowReader",
+  "@appTitle": {
+    "description": "Application name shown in the app bar and task switcher."
+  }
+}
