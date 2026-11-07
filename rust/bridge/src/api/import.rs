@@ -6,6 +6,7 @@
 //! tree; Dart decodes lazily or hands the bytes on.
 
 use std::collections::HashMap;
+use std::panic::AssertUnwindSafe;
 use std::sync::atomic::{AtomicI64, Ordering};
 use std::sync::{LazyLock, Mutex};
 
@@ -67,6 +68,9 @@ pub(crate) fn converter_for(_kind: SourceKind) -> Box<dyn Converter> {
 #[cfg(unix)]
 fn source_from_fd(fd: i32) -> Result<Box<dyn ReadSeek>, ImportError> {
     use std::os::unix::io::FromRawFd;
+    if fd < 0 {
+        return Err(ImportError::Corrupted("invalid file descriptor".into()));
+    }
     // SAFETY: the caller transfers ownership of `fd`; we close it on drop.
     Ok(Box::new(unsafe { std::fs::File::from_raw_fd(fd) }))
 }
@@ -76,51 +80,131 @@ fn source_from_fd(_fd: i32) -> Result<Box<dyn ReadSeek>, ImportError> {
     Err(ImportError::Corrupted("file descriptors are unsupported on this platform".into()))
 }
 
+/// Runs one import job to completion: always removes the registry entry and
+/// emits exactly one terminal event (`Done` or `Failed`), even if the
+/// converter panics.
+fn run_job(
+    job_id: i64,
+    converter: &dyn Converter,
+    source: Result<Box<dyn ReadSeek>, ImportError>,
+    kind: SourceKind,
+    token: &CancelToken,
+    emit: &mut dyn FnMut(ImportEvent),
+) {
+    let result = match source {
+        Err(e) => Err(e),
+        Ok(mut src) => {
+            let outcome = std::panic::catch_unwind(AssertUnwindSafe(|| {
+                let mut on_progress = |p: Progress| emit(ImportEvent::Progress(p));
+                converter.convert(&mut *src, kind, &mut on_progress, token)
+            }));
+            match outcome {
+                Ok(r) => r.map(|book| flow_core::encode(&book)),
+                Err(_) => Err(ImportError::Corrupted("internal error: converter panicked".into())),
+            }
+        }
+    };
+    JOBS.lock().unwrap_or_else(|e| e.into_inner()).remove(&job_id);
+    emit(match result {
+        Ok(bytes) => ImportEvent::Done(bytes),
+        Err(e) => ImportEvent::Failed(e),
+    });
+}
+
 /// Starts an import on a background thread. Rust takes ownership of `fd` and
 /// closes it. The first event is `Started(jobId)`; the stream ends after
 /// `Done` or `Failed`.
 pub fn import_book(fd: i32, kind: SourceKind, sink: StreamSink<ImportEvent>) {
     let job_id = NEXT_JOB.fetch_add(1, Ordering::SeqCst);
     let token = CancelToken::new();
-    JOBS.lock().unwrap().insert(job_id, token.clone());
+    JOBS.lock().unwrap_or_else(|e| e.into_inner()).insert(job_id, token.clone());
     // Take ownership of the fd before spawning so it is closed on every path.
     let source = source_from_fd(fd);
     let _ = sink.add(ImportEvent::Started(job_id));
     std::thread::spawn(move || {
-        let result = source.and_then(|mut src| {
-            let mut on_progress = |p: Progress| {
-                let _ = sink.add(ImportEvent::Progress(p));
-            };
-            converter_for(kind)
-                .convert(&mut *src, kind, &mut on_progress, &token)
-                .map(|book| flow_core::encode(&book))
-        });
-        JOBS.lock().unwrap().remove(&job_id);
-        let _ = sink.add(match result {
-            Ok(bytes) => ImportEvent::Done(bytes),
-            Err(e) => ImportEvent::Failed(e),
+        let converter = converter_for(kind);
+        run_job(job_id, &*converter, source, kind, &token, &mut |e| {
+            let _ = sink.add(e);
         });
     });
 }
 
 /// Requests cancellation of a running import. Unknown ids are ignored.
 pub fn cancel_import(job_id: i64) {
-    if let Some(t) = JOBS.lock().unwrap().get(&job_id) {
+    if let Some(t) = JOBS.lock().unwrap_or_else(|e| e.into_inner()).get(&job_id) {
         t.cancel();
     }
 }
 
-/// TEST-ONLY: opens `path` read-only and returns the raw fd (ownership passes
-/// to the caller, e.g. to `import_book`).
-pub fn debug_open_fd(path: String) -> Result<i32, String> {
+fn open_fd_guarded(path: &str, debug: bool) -> Result<i32, String> {
+    if !debug {
+        return Err("debug_open_fd is only available in debug builds".into());
+    }
     #[cfg(unix)]
     {
         use std::os::unix::io::IntoRawFd;
-        std::fs::File::open(&path).map(|f| f.into_raw_fd()).map_err(|e| e.to_string())
+        std::fs::File::open(path).map(|f| f.into_raw_fd()).map_err(|e| e.to_string())
     }
     #[cfg(not(unix))]
     {
         let _ = path;
         Err("file descriptors are unsupported on this platform".into())
+    }
+}
+
+/// TEST-ONLY: opens `path` read-only and returns the raw fd (ownership passes
+/// to the caller, e.g. to `import_book`). Refuses (without touching the
+/// filesystem) in release builds, so the app never opens sources by path.
+pub fn debug_open_fd(path: String) -> Result<i32, String> {
+    open_fd_guarded(&path, cfg!(debug_assertions))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use flow_core::model::Book;
+
+    struct Panicker;
+    impl Converter for Panicker {
+        fn convert(
+            &self,
+            _: &mut dyn ReadSeek,
+            _: SourceKind,
+            _: &mut dyn FnMut(Progress),
+            _: &CancelToken,
+        ) -> Result<Book, ImportError> {
+            panic!("boom");
+        }
+    }
+
+    #[test]
+    fn panic_yields_single_failed_and_cleans_registry() {
+        let id = 9_000_001;
+        let token = CancelToken::new();
+        JOBS.lock().unwrap().insert(id, token.clone());
+        let mut events = Vec::new();
+        let src: Result<Box<dyn ReadSeek>, ImportError> =
+            Ok(Box::new(std::io::Cursor::new(Vec::<u8>::new())));
+        run_job(id, &Panicker, src, SourceKind::Pdf, &token, &mut |e| events.push(e));
+        assert_eq!(events.len(), 1);
+        assert!(matches!(
+            &events[0],
+            ImportEvent::Failed(ImportError::Corrupted(m)) if m.contains("panicked")
+        ));
+        assert!(!JOBS.lock().unwrap().contains_key(&id));
+    }
+
+    #[test]
+    fn debug_guard_refuses_in_release() {
+        assert!(open_fd_guarded("/nonexistent/x", false).is_err());
+        assert!(open_fd_guarded("/nonexistent/x", true).is_err()); // reaches fs, not found
+        let e = open_fd_guarded("/nonexistent/x", false).unwrap_err();
+        assert!(e.contains("debug builds"));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn negative_fd_rejected() {
+        assert!(matches!(source_from_fd(-1), Err(ImportError::Corrupted(_))));
     }
 }
