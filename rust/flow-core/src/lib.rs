@@ -1,5 +1,10 @@
 //! FlowReader core: block format, hyphenation and import logic.
 
+pub mod codec;
+pub mod model;
+
+pub use codec::{decode, encode, FormatError};
+
 /// Version of the on-disk block format.
 pub const FORMAT_VERSION: u32 = 1;
 
