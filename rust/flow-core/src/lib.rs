@@ -1,6 +1,7 @@
 //! FlowReader core: block format, hyphenation and import logic.
 
 pub mod codec;
+pub mod hyphen;
 pub mod model;
 
 pub use codec::{decode, encode, FormatError};
