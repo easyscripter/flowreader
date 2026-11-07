@@ -1,0 +1,2 @@
+# rustfmt defaults; the file pins the edition for editors and tools.
+edition = "2021"

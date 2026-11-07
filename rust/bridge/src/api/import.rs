@@ -77,7 +77,9 @@ fn source_from_fd(fd: i32) -> Result<Box<dyn ReadSeek>, ImportError> {
 
 #[cfg(not(unix))]
 fn source_from_fd(_fd: i32) -> Result<Box<dyn ReadSeek>, ImportError> {
-    Err(ImportError::Corrupted("file descriptors are unsupported on this platform".into()))
+    Err(ImportError::Corrupted(
+        "file descriptors are unsupported on this platform".into(),
+    ))
 }
 
 /// Runs one import job to completion: always removes the registry entry and
@@ -99,12 +101,19 @@ fn run_job(
                 converter.convert(&mut *src, kind, &mut on_progress, token)
             }));
             match outcome {
-                Ok(r) => r.map(|book| flow_core::encode(&book)),
-                Err(_) => Err(ImportError::Corrupted("internal error: converter panicked".into())),
+                Ok(r) => r.and_then(|book| {
+                    flow_core::encode(&book)
+                        .map_err(|e| ImportError::Corrupted(format!("cannot encode book: {e}")))
+                }),
+                Err(_) => Err(ImportError::Corrupted(
+                    "internal error: converter panicked".into(),
+                )),
             }
         }
     };
-    JOBS.lock().unwrap_or_else(|e| e.into_inner()).remove(&job_id);
+    JOBS.lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .remove(&job_id);
     emit(match result {
         Ok(bytes) => ImportEvent::Done(bytes),
         Err(e) => ImportEvent::Failed(e),
@@ -117,7 +126,9 @@ fn run_job(
 pub fn import_book(fd: i32, kind: SourceKind, sink: StreamSink<ImportEvent>) {
     let job_id = NEXT_JOB.fetch_add(1, Ordering::SeqCst);
     let token = CancelToken::new();
-    JOBS.lock().unwrap_or_else(|e| e.into_inner()).insert(job_id, token.clone());
+    JOBS.lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .insert(job_id, token.clone());
     // Take ownership of the fd before spawning so it is closed on every path.
     let source = source_from_fd(fd);
     let _ = sink.add(ImportEvent::Started(job_id));
@@ -143,7 +154,9 @@ fn open_fd_guarded(path: &str, debug: bool) -> Result<i32, String> {
     #[cfg(unix)]
     {
         use std::os::unix::io::IntoRawFd;
-        std::fs::File::open(path).map(|f| f.into_raw_fd()).map_err(|e| e.to_string())
+        std::fs::File::open(path)
+            .map(|f| f.into_raw_fd())
+            .map_err(|e| e.to_string())
     }
     #[cfg(not(unix))]
     {
@@ -185,7 +198,9 @@ mod tests {
         let mut events = Vec::new();
         let src: Result<Box<dyn ReadSeek>, ImportError> =
             Ok(Box::new(std::io::Cursor::new(Vec::<u8>::new())));
-        run_job(id, &Panicker, src, SourceKind::Pdf, &token, &mut |e| events.push(e));
+        run_job(id, &Panicker, src, SourceKind::Pdf, &token, &mut |e| {
+            events.push(e)
+        });
         assert_eq!(events.len(), 1);
         assert!(matches!(
             &events[0],

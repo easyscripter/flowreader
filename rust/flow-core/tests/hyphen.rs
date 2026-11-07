@@ -1,4 +1,4 @@
-use flow_core::hyphen::Hyphenator;
+use flow_core::text::Hyphenator;
 
 const SHY: char = '\u{AD}';
 
@@ -18,7 +18,7 @@ fn letters_before_after(word: &str) -> Vec<(usize, usize)> {
 
 #[test]
 fn inserts_soft_hyphens() {
-    let h = Hyphenator::new();
+    let h = Hyphenator::new().unwrap();
     let src = "программирование";
     let out = h.hyphenate(src);
     assert!(out.contains(SHY), "{out:?}");
@@ -30,7 +30,7 @@ fn inserts_soft_hyphens() {
 
 #[test]
 fn keeps_short_and_hyphenated_words() {
-    let h = Hyphenator::new();
+    let h = Hyphenator::new().unwrap();
     for w in ["кот", "кое-что", "ООН", "API"] {
         assert_eq!(h.hyphenate(w), w);
     }
@@ -43,8 +43,12 @@ fn keeps_short_and_hyphenated_words() {
 /// Only the hyphen-joiner rule protects these (all are >= 5 letters per part).
 #[test]
 fn keeps_long_hyphenated_words() {
-    let h = Hyphenator::new();
-    for w in ["научно-исследовательский", "северо-западный", "state-of-the-art-technology"] {
+    let h = Hyphenator::new().unwrap();
+    for w in [
+        "научно-исследовательский",
+        "северо-западный",
+        "state-of-the-art-technology",
+    ] {
         assert_eq!(h.hyphenate(w), w);
     }
 }
@@ -52,7 +56,7 @@ fn keeps_long_hyphenated_words() {
 /// Only the all-caps rule protects these.
 #[test]
 fn keeps_long_all_caps_words() {
-    let h = Hyphenator::new();
+    let h = Hyphenator::new().unwrap();
     for w in ["ПРОГРАММИРОВАНИЕ", "HYPHENATION"] {
         assert_eq!(h.hyphenate(w), w);
     }
@@ -60,7 +64,7 @@ fn keeps_long_all_caps_words() {
 
 #[test]
 fn mixed_text() {
-    let h = Hyphenator::new();
+    let h = Hyphenator::new().unwrap();
     let src = "Метод hyphenation работает";
     let out = h.hyphenate(src);
     assert_eq!(out.replace(SHY, ""), src);
@@ -76,21 +80,21 @@ fn mixed_text() {
 
 #[test]
 fn idempotent() {
-    let h = Hyphenator::new();
+    let h = Hyphenator::new().unwrap();
     let once = h.hyphenate("Программирование и hyphenation, кое-что ООН");
     assert_eq!(h.hyphenate(&once), once);
 }
 
 #[test]
 fn leaves_words_with_existing_soft_hyphens() {
-    let h = Hyphenator::new();
+    let h = Hyphenator::new().unwrap();
     let src = "программи\u{AD}рование";
     assert_eq!(h.hyphenate(src), src);
 }
 
 #[test]
 fn margins_hold_for_long_ru_and_en_words() {
-    let h = Hyphenator::new();
+    let h = Hyphenator::new().unwrap();
     for w in ["программирование", "interoperability", "international"] {
         let out = h.hyphenate(w);
         assert!(out.contains(SHY), "{out:?}");
@@ -103,7 +107,7 @@ fn margins_hold_for_long_ru_and_en_words() {
 
 #[test]
 fn uppercase_initial_word_is_hyphenated() {
-    let h = Hyphenator::new();
+    let h = Hyphenator::new().unwrap();
     let out = h.hyphenate("Программирование");
     assert!(out.contains(SHY), "{out:?}");
     assert_eq!(out.replace(SHY, ""), "Программирование");
