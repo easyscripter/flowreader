@@ -10,4 +10,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appTitle => 'FlowReader';
+
+  @override
+  String get spikeHyphenTitle => 'Soft hyphen spike';
+
+  @override
+  String spikeWidthLabel(int width) {
+    return 'Width: $width px';
+  }
+
+  @override
+  String get spikeJustify => 'Justify text';
+
+  @override
+  String get spikeOpenButton => 'Hyphenation spike (debug)';
 }

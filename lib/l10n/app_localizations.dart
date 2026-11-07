@@ -103,6 +103,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'FlowReader'**
   String get appTitle;
+
+  /// Title of the debug-only hyphenation spike screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Soft hyphen spike'**
+  String get spikeHyphenTitle;
+
+  /// Label of the width slider on the debug spike screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Width: {width} px'**
+  String spikeWidthLabel(int width);
+
+  /// No description provided for @spikeJustify.
+  ///
+  /// In en, this message translates to:
+  /// **'Justify text'**
+  String get spikeJustify;
+
+  /// No description provided for @spikeOpenButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Hyphenation spike (debug)'**
+  String get spikeOpenButton;
 }
 
 class _AppLocalizationsDelegate

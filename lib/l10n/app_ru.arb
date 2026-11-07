@@ -1,4 +1,8 @@
 {
   "@@locale": "ru",
-  "appTitle": "FlowReader"
+  "appTitle": "FlowReader",
+  "spikeHyphenTitle": "Проверка мягкого переноса",
+  "spikeWidthLabel": "Ширина: {width} px",
+  "spikeJustify": "Выравнивание по ширине",
+  "spikeOpenButton": "Проверка переноса (debug)"
 }
