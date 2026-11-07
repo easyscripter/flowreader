@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'import.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `converter_for`, `source_from_fd`
+// These functions are ignored because they are not marked as `pub`: `converter_for`, `open_fd_guarded`, `run_job`, `source_from_fd`
 
 /// Starts an import on a background thread. Rust takes ownership of `fd` and
 /// closes it. The first event is `Started(jobId)`; the stream ends after
@@ -21,7 +21,8 @@ Future<void> cancelImport({required PlatformInt64 jobId}) =>
     RustLib.instance.api.crateApiImportCancelImport(jobId: jobId);
 
 /// TEST-ONLY: opens `path` read-only and returns the raw fd (ownership passes
-/// to the caller, e.g. to `import_book`).
+/// to the caller, e.g. to `import_book`). Refuses (without touching the
+/// filesystem) in release builds, so the app never opens sources by path.
 Future<int> debugOpenFd({required String path}) =>
     RustLib.instance.api.crateApiImportDebugOpenFd(path: path);
 

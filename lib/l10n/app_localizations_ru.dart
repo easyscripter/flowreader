@@ -10,4 +10,18 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get appTitle => 'FlowReader';
+
+  @override
+  String get spikeHyphenTitle => 'Проверка мягкого переноса';
+
+  @override
+  String spikeWidthLabel(int width) {
+    return 'Ширина: $width px';
+  }
+
+  @override
+  String get spikeJustify => 'Выравнивание по ширине';
+
+  @override
+  String get spikeOpenButton => 'Проверка переноса (debug)';
 }

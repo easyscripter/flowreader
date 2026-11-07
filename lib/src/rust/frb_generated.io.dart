@@ -5,6 +5,7 @@
 
 import 'api/import.dart';
 import 'api/simple.dart';
+import 'api/text.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi' as ffi;

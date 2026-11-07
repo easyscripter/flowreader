@@ -3,5 +3,20 @@
   "appTitle": "FlowReader",
   "@appTitle": {
     "description": "Application name shown in the app bar and task switcher."
+  },
+  "spikeHyphenTitle": "Soft hyphen spike",
+  "spikeWidthLabel": "Width: {width} px",
+  "spikeJustify": "Justify text",
+  "spikeOpenButton": "Hyphenation spike (debug)",
+  "@spikeWidthLabel": {
+    "description": "Label of the width slider on the debug spike screen.",
+    "placeholders": {
+      "width": {
+        "type": "int"
+      }
+    }
+  },
+  "@spikeHyphenTitle": {
+    "description": "Title of the debug-only hyphenation spike screen."
   }
 }
