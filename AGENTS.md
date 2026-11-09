@@ -39,6 +39,9 @@ FlowReader — читалка для Android на Flutter: PDF (через за�
   **только с явного разрешения человека в чате.** Склейку делает человек кнопкой «Squash and merge».
 - push — только в ветку своей задачи.
 - Хук перед коммитом подключается один раз: `git config core.hooksPath .githooks`. Обходить его (`--no-verify`) запрещено.
+  Он проверяет только затронутую коммитом часть: `rust/**` — команды Rust из раздела 9; `lib/`, `test/`,
+  `integration_test/`, `test_driver/`, `pubspec.*`, `analysis_options.yaml`, `l10n.yaml` — команды Dart.
+  Файлы, добавленные в коммит частично (есть ещё неиндексированные правки), блокируют коммит.
 
 ---
 
@@ -204,7 +207,8 @@ rust/flow-core/dictionaries/   данные переносов + NOTICE.md
 
 Автоматика (локально и в CI — всё зелёное)
 - [ ] `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test` (из `rust/`).
-- [ ] `dart format --set-exit-if-changed .`, `dart analyze`, `flutter test`.
+- [ ] `dart format --set-exit-if-changed lib test integration_test test_driver`, `dart analyze --fatal-infos`,
+      `flutter test`.
 - [ ] Кодогенерация актуальна (`build_runner`, `flutter_rust_bridge_codegen generate`) и закоммичена.
       Любое изменение в `rust/bridge/src/api/` (даже комментарий) меняет отпечаток API: перегенерируй мост, а перед
       QA собирай после `flutter clean` — иначе приложение падает при старте с «Content hash … is different».
@@ -231,7 +235,8 @@ PR
 # Rust (из rust/)
 cargo fmt --check && cargo clippy --all-targets -- -D warnings && cargo test
 # Dart / Flutter (из корня)
-dart format --set-exit-if-changed . && dart analyze && flutter test
+# (не `dart format .` — он заходит в build/; --fatal-infos — иначе замечания линтеров не роняют проверку)
+dart format --set-exit-if-changed lib test integration_test test_driver && dart analyze --fatal-infos && flutter test
 # Кодогенерация
 dart run build_runner build -d
 flutter_rust_bridge_codegen generate

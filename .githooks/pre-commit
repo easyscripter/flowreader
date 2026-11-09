@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# Pre-commit checks (AGENTS.md, sections 1 and 9). Enable once per clone:
+#   git config core.hooksPath .githooks
+# Runs only the part of the project touched by the commit:
+#   rust/**                         -> cargo fmt --check, clippy -D warnings, cargo test
+#   lib/, test/, pubspec.* etc.     -> dart format, dart analyze, flutter test
+# Bypassing with --no-verify is forbidden.
+set -euo pipefail
+
+root="$(git rev-parse --show-toplevel)"
+cd "$root"
+
+staged="$(git diff --cached --name-only --diff-filter=ACMRD)"
+if [ -z "$staged" ]; then
+  exit 0
+fi
+
+rust=0
+dart=0
+while IFS= read -r path; do
+  case "$path" in
+    rust/*) rust=1 ;;
+    lib/* | test/* | integration_test/* | test_driver/* | \
+      pubspec.yaml | pubspec.lock | analysis_options.yaml | l10n.yaml) dart=1 ;;
+  esac
+done <<< "$staged"
+
+if [ "$rust" -eq 0 ] && [ "$dart" -eq 0 ]; then
+  exit 0
+fi
+
+# The checks run on the working tree. If a staged file also has unstaged
+# edits, the tree differs from the commit and a green run would prove nothing.
+unstaged="$(git diff --name-only)"
+partial=""
+if [ -n "$unstaged" ]; then
+  partial="$(printf '%s\n' "$unstaged" | grep -Fx -f <(printf '%s\n' "$staged") || true)"
+fi
+if [ -n "$partial" ]; then
+  echo "pre-commit: these files have both staged and unstaged changes:" >&2
+  printf '%s\n' "$partial" | sed 's/^/  /' >&2
+  echo "pre-commit: stage them fully (git add) or stash the rest, then commit again." >&2
+  exit 1
+fi
+
+step() {
+  echo "pre-commit: $*" >&2
+  if ! "$@"; then
+    echo "pre-commit: FAILED: $*" >&2
+    exit 1
+  fi
+}
+
+if [ "$rust" -eq 1 ]; then
+  (
+    cd rust
+    step cargo fmt --all --check
+    step cargo clippy --workspace --all-targets -- -D warnings
+    step cargo test --workspace
+  )
+fi
+
+if [ "$dart" -eq 1 ]; then
+  # Explicit folders: `dart format .` would also check build/ (generated cargokit code).
+  step dart format --output=none --set-exit-if-changed lib test integration_test test_driver
+  # dart analyze, not flutter analyze: only it runs analyzer plugins (riverpod_lint).
+  # --fatal-infos: lint findings are "info" and would not fail the run otherwise.
+  step dart analyze --fatal-infos
+  step flutter test
+fi
+
+echo "pre-commit: all checks passed" >&2

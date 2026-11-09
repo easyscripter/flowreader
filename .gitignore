@@ -54,3 +54,6 @@ corpus/
 *.epub
 *.fb2
 .superpowers/
+
+# Claude Code: personal settings stay local; project hooks (.claude/settings.json) are shared.
+.claude/settings.local.json
