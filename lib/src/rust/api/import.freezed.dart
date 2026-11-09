@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'import.dart';
@@ -9,6 +9,7 @@ part of 'import.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -20,7 +21,7 @@ mixin _$ImportError {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportError);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportError);
 }
 
 
@@ -29,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ImportError()';
+    return 'ImportError()';
 }
 
 
@@ -203,7 +204,7 @@ class ImportError_NoTextLayer extends ImportError {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportError_NoTextLayer);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportError_NoTextLayer);
 }
 
 
@@ -212,7 +213,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ImportError.noTextLayer()';
+    return 'ImportError.noTextLayer()';
 }
 
 
@@ -240,16 +241,18 @@ $ImportError_CorruptedCopyWith<ImportError_Corrupted> get copyWith => _$ImportEr
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportError_Corrupted&&(identical(other.field0, field0) || other.field0 == field0));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportError_Corrupted&&(identical(other.field0, field0) || other.field0 == field0));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,field0);
+int get hashCode {
+    return Object.hash(runtimeType,field0);
+}
 
 @override
 String toString() {
-  return 'ImportError.corrupted(field0: $field0)';
+    return 'ImportError.corrupted(field0: $field0)';
 }
 
 
@@ -301,7 +304,7 @@ class ImportError_OutOfMemory extends ImportError {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportError_OutOfMemory);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportError_OutOfMemory);
 }
 
 
@@ -310,7 +313,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ImportError.outOfMemory()';
+    return 'ImportError.outOfMemory()';
 }
 
 
@@ -338,16 +341,18 @@ $ImportError_UnsupportedCopyWith<ImportError_Unsupported> get copyWith => _$Impo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportError_Unsupported&&(identical(other.field0, field0) || other.field0 == field0));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportError_Unsupported&&(identical(other.field0, field0) || other.field0 == field0));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,field0);
+int get hashCode {
+    return Object.hash(runtimeType,field0);
+}
 
 @override
 String toString() {
-  return 'ImportError.unsupported(field0: $field0)';
+    return 'ImportError.unsupported(field0: $field0)';
 }
 
 
@@ -399,7 +404,7 @@ class ImportError_Cancelled extends ImportError {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportError_Cancelled);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportError_Cancelled);
 }
 
 
@@ -408,7 +413,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ImportError.cancelled()';
+    return 'ImportError.cancelled()';
 }
 
 
@@ -426,16 +431,21 @@ mixin _$ImportEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportEvent&&const DeepCollectionEquality().equals(other.field0, field0));
+  final _this = this as ImportEvent;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportEvent&&const DeepCollectionEquality().equals(other.field0, _this.field0));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(field0));
+int get hashCode {
+  final _this = this as ImportEvent;
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.field0));
+}
 
 @override
 String toString() {
-  return 'ImportEvent(field0: $field0)';
+  final _this = this as ImportEvent;
+  return 'ImportEvent(field0: ${_this.field0})';
 }
 
 
@@ -608,16 +618,18 @@ $ImportEvent_StartedCopyWith<ImportEvent_Started> get copyWith => _$ImportEvent_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportEvent_Started&&(identical(other.field0, field0) || other.field0 == field0));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportEvent_Started&&(identical(other.field0, field0) || other.field0 == field0));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,field0);
+int get hashCode {
+    return Object.hash(runtimeType,field0);
+}
 
 @override
 String toString() {
-  return 'ImportEvent.started(field0: $field0)';
+    return 'ImportEvent.started(field0: $field0)';
 }
 
 
@@ -674,16 +686,18 @@ $ImportEvent_ProgressCopyWith<ImportEvent_Progress> get copyWith => _$ImportEven
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportEvent_Progress&&(identical(other.field0, field0) || other.field0 == field0));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportEvent_Progress&&(identical(other.field0, field0) || other.field0 == field0));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,field0);
+int get hashCode {
+    return Object.hash(runtimeType,field0);
+}
 
 @override
 String toString() {
-  return 'ImportEvent.progress(field0: $field0)';
+    return 'ImportEvent.progress(field0: $field0)';
 }
 
 
@@ -740,16 +754,18 @@ $ImportEvent_DoneCopyWith<ImportEvent_Done> get copyWith => _$ImportEvent_DoneCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportEvent_Done&&const DeepCollectionEquality().equals(other.field0, field0));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportEvent_Done&&const DeepCollectionEquality().equals(other.field0, field0));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(field0));
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(field0));
+}
 
 @override
 String toString() {
-  return 'ImportEvent.done(field0: $field0)';
+    return 'ImportEvent.done(field0: $field0)';
 }
 
 
@@ -806,16 +822,18 @@ $ImportEvent_FailedCopyWith<ImportEvent_Failed> get copyWith => _$ImportEvent_Fa
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportEvent_Failed&&(identical(other.field0, field0) || other.field0 == field0));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportEvent_Failed&&(identical(other.field0, field0) || other.field0 == field0));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,field0);
+int get hashCode {
+    return Object.hash(runtimeType,field0);
+}
 
 @override
 String toString() {
-  return 'ImportEvent.failed(field0: $field0)';
+    return 'ImportEvent.failed(field0: $field0)';
 }
 
 

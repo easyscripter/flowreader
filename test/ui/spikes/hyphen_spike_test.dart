@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:flowreader/spikes/hyphen_spike_screen.dart';
-import 'package:flowreader/spikes/spike_text.dart';
+import 'package:flowreader/ui/spikes/spike_text.dart';
+import 'package:flowreader/ui/spikes/widgets/spike_paragraph.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -52,6 +52,7 @@ void main() {
         hyphenBreaks++;
       }
     }
+    // Spike evidence: the break count is part of the 0a report.
     // ignore: avoid_print
     print('lines=${lines.length} hyphenBreaks=$hyphenBreaks');
     expect(hyphenBreaks, greaterThan(0));

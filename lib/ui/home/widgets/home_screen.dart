@@ -1,11 +1,11 @@
 import 'package:flowreader/l10n/app_localizations.dart';
-import 'package:flowreader/spikes/hyphen_spike_screen.dart';
+import 'package:flowreader/ui/spikes/widgets/hyphen_spike_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Placeholder home screen; replaced by the library screen in later tasks.
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  const new({super.key});
 
   @override
   Widget build(BuildContext context) {

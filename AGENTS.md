@@ -141,12 +141,14 @@ rust/flow-core/dictionaries/   данные переносов + NOTICE.md
 
 ## 5. Dart / Flutter
 
-- Анализатор: `very_good_analysis` + `strict-casts`, `strict-inference`, `strict-raw-types`; `flutter analyze` — 0 замечаний.
+- Анализатор: `very_good_analysis` + `strict-casts`, `strict-inference`, `strict-raw-types`; `dart analyze` — 0 замечаний
+  (именно `dart analyze`: `flutter analyze` не запускает плагины анализатора, и `riverpod_lint` в нём не работает).
   Отключение правила — только в `analysis_options.yaml` с комментарием «почему». Сгенерированный код исключён.
 - `dart format` (`--set-exit-if-changed`).
 - Без `dynamic`; без `!` (null-assert) в коде приложения (кроме тестов); `late` — только с комментарием.
 - Модели неизменяемые (`freezed`), изменение через `copyWith`.
-- Riverpod — только кодогенерация (`@riverpod`, `riverpod_generator`) + `riverpod_lint` / `custom_lint` без замечаний.
+- Riverpod — только кодогенерация (`@riverpod`, `riverpod_generator`) + `riverpod_lint` (плагин в `analysis_options.yaml`)
+  без замечаний.
   После изменений: `dart run build_runner build -d`; сгенерированные файлы коммитятся.
 - Все строки интерфейса — ARB (`lib/l10n/app_ru.arb`, `app_en.arb`); строковых литералов в виджетах нет.
 - **Один виджет — один файл.** Каждый публичный виджет — в своём файле, имя файла = имя виджета в snake_case
@@ -202,7 +204,7 @@ rust/flow-core/dictionaries/   данные переносов + NOTICE.md
 
 Автоматика (локально и в CI — всё зелёное)
 - [ ] `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test` (из `rust/`).
-- [ ] `dart format --set-exit-if-changed .`, `flutter analyze`, `dart run custom_lint`, `flutter test`.
+- [ ] `dart format --set-exit-if-changed .`, `dart analyze`, `flutter test`.
 - [ ] Кодогенерация актуальна (`build_runner`, `flutter_rust_bridge_codegen generate`) и закоммичена.
       Любое изменение в `rust/bridge/src/api/` (даже комментарий) меняет отпечаток API: перегенерируй мост, а перед
       QA собирай после `flutter clean` — иначе приложение падает при старте с «Content hash … is different».
@@ -229,7 +231,7 @@ PR
 # Rust (из rust/)
 cargo fmt --check && cargo clippy --all-targets -- -D warnings && cargo test
 # Dart / Flutter (из корня)
-dart format --set-exit-if-changed . && flutter analyze && dart run custom_lint && flutter test
+dart format --set-exit-if-changed . && dart analyze && flutter test
 # Кодогенерация
 dart run build_runner build -d
 flutter_rust_bridge_codegen generate
