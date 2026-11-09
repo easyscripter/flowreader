@@ -1,19 +1,20 @@
-import 'package:flowreader/app.dart';
+import 'package:flowreader/flow_reader_app.dart';
 import 'package:flowreader/src/rust/frb_generated.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 /// Spike 0a on a device: live Rust hyphenation + Flutter text engine.
 /// Run: flutter drive --driver=test_driver/integration_test.dart
-///   --target=integration_test/hyphen_spike_device_test.dart -d <id> --flavor store
+///   --target=integration_test/hyphen_spike_device_test.dart -d `<id>` --flavor store
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  setUpAll(() async => RustLib.init());
+  setUpAll(RustLib.init);
 
   testWidgets('hyphen spike screenshots', (tester) async {
-    await tester.pumpWidget(const FlowReaderApp());
+    await tester.pumpWidget(const ProviderScope(child: FlowReaderApp()));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('open_hyphen_spike')));
     await tester.pumpAndSettle();
