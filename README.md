@@ -1,6 +1,6 @@
-# FlowReader
+# FusionReflow
 
-FlowReader is an Android reader app that reflows documents (PDF, EPUB, FB2)
+FusionReflow is an Android reader app that reflows documents (PDF, EPUB, FB2)
 into comfortable, re-flowable text. The UI is built with Flutter; the core
 (block format, hyphenation, import) is written in Rust and connected through
 [flutter_rust_bridge](https://github.com/fzyzcjy/flutter_rust_bridge).
@@ -21,7 +21,7 @@ cd rust && cargo test --workspace
 
 ## License and third-party notices
 
-FlowReader is licensed under the [GPL-3.0-only](LICENSE). Contributions are
+FusionReflow is licensed under the [GPL-3.0-only](LICENSE). Contributions are
 subject to the [CLA](CLA.md).
 
 Third-party components:

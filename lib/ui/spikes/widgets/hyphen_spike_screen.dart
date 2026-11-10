@@ -1,9 +1,9 @@
-import 'package:flowreader/l10n/app_localizations.dart';
-import 'package:flowreader/ui/spikes/view_models/hyphen_spike_state.dart';
-import 'package:flowreader/ui/spikes/view_models/hyphen_spike_view_model.dart';
-import 'package:flowreader/ui/spikes/widgets/spike_paragraph.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fusionreflow/l10n/app_localizations.dart';
+import 'package:fusionreflow/ui/spikes/view_models/hyphen_spike_state.dart';
+import 'package:fusionreflow/ui/spikes/view_models/hyphen_spike_view_model.dart';
+import 'package:fusionreflow/ui/spikes/widgets/spike_paragraph.dart';
 
 /// Debug-only spike 0a screen: soft hyphen rendering and justify quality.
 class HyphenSpikeScreen extends ConsumerWidget {

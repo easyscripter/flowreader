@@ -1,5 +1,5 @@
-import 'package:flowreader/ui/spikes/spike_text.dart';
 import 'package:flutter/material.dart';
+import 'package:fusionreflow/ui/spikes/spike_text.dart';
 
 /// A justified or left-aligned paragraph of fixed [width], used by the spike
 /// screen and its golden tests.

@@ -1,8 +1,8 @@
-import 'package:flowreader/l10n/app_localizations.dart';
-import 'package:flowreader/ui/home/widgets/home_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:fusionreflow/l10n/app_localizations.dart';
+import 'package:fusionreflow/ui/home/widgets/home_screen.dart';
 
-class FlowReaderApp extends StatelessWidget {
+class FusionReflowApp extends StatelessWidget {
   const new({super.key});
 
   @override

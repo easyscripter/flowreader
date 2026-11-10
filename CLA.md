@@ -1,10 +1,10 @@
 # Contributor License Agreement (CLA)
 
-Thank you for contributing to FlowReader. By submitting a contribution
+Thank you for contributing to FusionReflow. By submitting a contribution
 (code, documentation, translations, or any other material) to this repository,
 you agree to the following terms.
 
-1. **Definitions.** "Project Owner" means the maintainer of the FlowReader
+1. **Definitions.** "Project Owner" means the maintainer of the FusionReflow
    project (GitHub user `easyscripter`) and their successors. "Contribution"
    means any work you intentionally submit to the project.
 
@@ -15,7 +15,7 @@ you agree to the following terms.
 
 3. **Right to relicense.** You expressly grant the Project Owner the right to
    distribute your Contribution under the GNU General Public License v3.0 as
-   part of FlowReader and under any other license of the Project Owner's
+   part of FusionReflow and under any other license of the Project Owner's
    choosing, including proprietary licenses and proprietary builds of the
    application (for example, store distributions).
 
@@ -34,5 +34,5 @@ you agree to the following terms.
    Contribution. You retain ownership of the copyright in your Contribution.
 
 7. **How to agree.** Opening a pull request with the statement
-   "I have read and agree to the FlowReader CLA" in its description constitutes
+   "I have read and agree to the FusionReflow CLA" in its description constitutes
    your acceptance of this agreement.

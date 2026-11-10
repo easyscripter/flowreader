@@ -1,6 +1,6 @@
 {
   "@@locale": "ru",
-  "appTitle": "FlowReader",
+  "appTitle": "FusionReflow",
   "spikeHyphenTitle": "Проверка мягкого переноса",
   "spikeWidthLabel": "Ширина: {width} px",
   "spikeJustify": "Выравнивание по ширине",

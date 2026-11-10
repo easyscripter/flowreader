@@ -1,4 +1,4 @@
-package app.flowreader.flowreader
+package app.fusionreflow.fusionreflow
 
 import io.flutter.embedding.android.FlutterActivity
 

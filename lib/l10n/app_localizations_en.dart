@@ -10,7 +10,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'FlowReader';
+  String get appTitle => 'FusionReflow';
 
   @override
   String get spikeHyphenTitle => 'Soft hyphen spike';
