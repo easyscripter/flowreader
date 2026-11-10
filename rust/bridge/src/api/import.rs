@@ -217,6 +217,116 @@ mod tests {
         assert!(e.contains("debug builds"));
     }
 
+    struct Succeeder;
+    impl Converter for Succeeder {
+        fn convert(
+            &self,
+            _: &mut dyn ReadSeek,
+            _: SourceKind,
+            progress: &mut dyn FnMut(Progress),
+            _: &CancelToken,
+        ) -> Result<Book, ImportError> {
+            progress(Progress {
+                stage: Stage::Pages,
+                done: 1,
+                total: 1,
+            });
+            Ok(Book {
+                format_version: flow_core::FORMAT_VERSION,
+                converter_version: "test".into(),
+                source_hash: String::new(),
+                meta: flow_core::model::Meta {
+                    title: "T".into(),
+                    authors: vec![],
+                    language: None,
+                    cover: None,
+                },
+                toc: vec![],
+                blocks: vec![],
+                resources: vec![],
+            })
+        }
+    }
+
+    fn empty_source() -> Result<Box<dyn ReadSeek>, ImportError> {
+        Ok(Box::new(std::io::Cursor::new(Vec::<u8>::new())))
+    }
+
+    #[test]
+    fn success_emits_progress_then_done_with_decodable_book() {
+        let id = 9_000_002;
+        let token = CancelToken::new();
+        JOBS.lock().unwrap().insert(id, token.clone());
+        let mut events = Vec::new();
+        run_job(
+            id,
+            &Succeeder,
+            empty_source(),
+            SourceKind::Epub,
+            &token,
+            &mut |e| events.push(e),
+        );
+        assert_eq!(events.len(), 2);
+        assert!(matches!(&events[0], ImportEvent::Progress(p) if p.done == 1));
+        let ImportEvent::Done(bytes) = &events[1] else {
+            panic!("expected Done");
+        };
+        assert_eq!(flow_core::decode(bytes).unwrap().meta.title, "T");
+        assert!(!JOBS.lock().unwrap().contains_key(&id));
+    }
+
+    #[test]
+    fn source_error_is_reported_as_failed() {
+        let id = 9_000_003;
+        let token = CancelToken::new();
+        JOBS.lock().unwrap().insert(id, token.clone());
+        let mut events = Vec::new();
+        run_job(
+            id,
+            &Succeeder,
+            Err(ImportError::Corrupted("bad fd".into())),
+            SourceKind::Pdf,
+            &token,
+            &mut |e| events.push(e),
+        );
+        assert_eq!(events.len(), 1);
+        assert!(matches!(
+            &events[0],
+            ImportEvent::Failed(ImportError::Corrupted(m)) if m == "bad fd"
+        ));
+        assert!(!JOBS.lock().unwrap().contains_key(&id));
+    }
+
+    #[test]
+    fn cancel_import_cancels_registered_job_and_ignores_unknown() {
+        let id = 9_000_004;
+        let token = CancelToken::new();
+        JOBS.lock().unwrap().insert(id, token.clone());
+        cancel_import(id + 1000); // unknown id: no effect, no panic
+        assert!(!token.is_cancelled());
+        cancel_import(id);
+        assert!(token.is_cancelled());
+        JOBS.lock().unwrap().remove(&id);
+    }
+
+    #[test]
+    fn open_source_kinds_use_the_stub_converter() {
+        let token = CancelToken::new();
+        let mut src = std::io::Cursor::new(Vec::<u8>::new());
+        let result =
+            converter_for(SourceKind::Pdf).convert(&mut src, SourceKind::Pdf, &mut |_| {}, &token);
+        assert!(matches!(
+            result,
+            Err(ImportError::Unsupported(SourceKind::Pdf))
+        ));
+    }
+
+    #[cfg(not(unix))]
+    #[test]
+    fn fd_sources_unsupported_off_unix() {
+        assert!(matches!(source_from_fd(3), Err(ImportError::Corrupted(_))));
+    }
+
     #[cfg(unix)]
     #[test]
     fn negative_fd_rejected() {

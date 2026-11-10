@@ -1,0 +1,3 @@
+tags:
+  # Pixel-exact image comparison: platform dependent, skipped in CI.
+  golden:

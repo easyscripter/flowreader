@@ -20,7 +20,7 @@ dart=0
 while IFS= read -r path; do
   case "$path" in
     rust/*) rust=1 ;;
-    lib/* | test/* | integration_test/* | test_driver/* | \
+    lib/* | test/* | integration_test/* | test_driver/* | tool/* | \
       pubspec.yaml | pubspec.lock | analysis_options.yaml | l10n.yaml) dart=1 ;;
   esac
 done <<< "$staged"
@@ -62,7 +62,7 @@ fi
 
 if [ "$dart" -eq 1 ]; then
   # Explicit folders: `dart format .` would also check build/ (generated cargokit code).
-  step dart format --output=none --set-exit-if-changed lib test integration_test test_driver
+  step dart format --output=none --set-exit-if-changed lib test integration_test test_driver tool
   # dart analyze, not flutter analyze: only it runs analyzer plugins (riverpod_lint).
   # --fatal-infos: lint findings are "info" and would not fail the run otherwise.
   step dart analyze --fatal-infos

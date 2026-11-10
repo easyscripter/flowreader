@@ -1,0 +1,87 @@
+# CI (AGENTS.md, sections 6, 8, 9). Runs on every PR and on pushes to branches.
+# Heavy checks that need a device or models are not run here (QA runs them).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches-ignore: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  # Minimum line coverage for layers with logic, in percent (AGENTS.md, section 6).
+  COVERAGE_THRESHOLD: "85"
+
+jobs:
+  rust:
+    name: Rust
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: rust
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy, llvm-tools-preview
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+      - uses: taiki-e/install-action@cargo-llvm-cov
+      - run: cargo fmt --all --check
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: Tests with coverage (flow-core, bridge)
+        run: >
+          cargo llvm-cov --workspace
+          --ignore-filename-regex 'frb_generated\.rs|[\\/]tests[\\/]'
+          --fail-under-lines "$COVERAGE_THRESHOLD"
+
+  flutter:
+    name: Flutter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Format
+        run: dart format --output=none --set-exit-if-changed lib test integration_test test_driver tool
+      # dart analyze, not flutter analyze: only it runs analyzer plugins (riverpod_lint).
+      - name: Analyze
+        run: dart analyze --fatal-infos
+      - name: Generated code is up to date
+        run: |
+          dart run build_runner build -d
+          git diff --exit-code -- lib
+      - name: Tests with coverage
+        run: |
+          dart run tool/check_coverage.dart prepare
+          echo "SKIPPED: golden tests (tag 'golden') - pixel output differs between Windows and Linux; run locally and in QA"
+          flutter test --coverage --exclude-tags golden
+      - name: Coverage threshold (lib/domain, data, utils, view_models)
+        run: dart run tool/check_coverage.dart check --threshold="$COVERAGE_THRESHOLD"
+
+  duplicates:
+    name: Duplicate code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # jscpd (MIT) via npx: blocks of 10+ lines; generated code is excluded.
+      - name: jscpd
+        run: >
+          npx --yes jscpd@4 lib rust/flow-core/src rust/bridge/src
+          --min-lines 10 --threshold 0 --exitCode 1
+          --ignore "**/*.g.dart,**/*.freezed.dart,lib/src/rust/**,lib/l10n/app_localizations*.dart,**/frb_generated.rs"
+          --reporters console
