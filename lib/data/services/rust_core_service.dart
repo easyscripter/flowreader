@@ -1,4 +1,4 @@
-import 'package:flowreader/src/rust/api/text.dart' as rust_text;
+import 'package:fusionreflow/src/rust/api/text.dart' as rust_text;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'rust_core_service.g.dart';

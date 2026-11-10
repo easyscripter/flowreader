@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flowreader/src/rust/api/import.dart';
-import 'package:flowreader/src/rust/frb_generated.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fusionreflow/src/rust/api/import.dart';
+import 'package:fusionreflow/src/rust/frb_generated.dart';
 import 'package:integration_test/integration_test.dart';
 
 Future<int> _tempFd() async {

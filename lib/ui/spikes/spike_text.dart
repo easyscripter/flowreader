@@ -23,7 +23,7 @@ const kSpikeSource =
 
 /// [kSpikeSource] after `Hyphenator::hyphenate` (flow-core), with U+00AD
 /// written as an escape at the Russian break points. Regenerate from `rust/`:
-/// `cargo test -p rust_lib_flowreader print_spike -- --nocapture`, then paste
+/// `cargo test -p rust_lib_fusionreflow print_spike -- --nocapture`, then paste
 /// the `SPIKE:` line below.
 const kSpikeHyphenated =
     'Со\u00ADвре\u00ADмен\u00ADные тех\u00ADно\u00ADло\u00ADгии '

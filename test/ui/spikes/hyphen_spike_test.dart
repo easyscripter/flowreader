@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:flowreader/ui/spikes/spike_text.dart';
-import 'package:flowreader/ui/spikes/widgets/spike_paragraph.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fusionreflow/ui/spikes/spike_text.dart';
+import 'package:fusionreflow/ui/spikes/widgets/spike_paragraph.dart';
 
 const _softHyphen = '\u00AD';
 

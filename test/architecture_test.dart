@@ -24,7 +24,7 @@ bool _isGenerated(String path) {
 String _rel(File f) => f.path.replaceAll(r'\', '/');
 
 final _importRe = RegExp(
-  "^import 'package:flowreader/([^']+)'",
+  "^import 'package:fusionreflow/([^']+)'",
   multiLine: true,
 );
 

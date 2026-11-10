@@ -1,7 +1,7 @@
-import 'package:flowreader/l10n/app_localizations.dart';
-import 'package:flowreader/ui/spikes/widgets/hyphen_spike_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fusionreflow/l10n/app_localizations.dart';
+import 'package:fusionreflow/ui/spikes/widgets/hyphen_spike_screen.dart';
 
 /// Placeholder home screen; replaced by the library screen in later tasks.
 class HomeScreen extends StatelessWidget {

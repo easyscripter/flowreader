@@ -10,7 +10,7 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
-  String get appTitle => 'FlowReader';
+  String get appTitle => 'FusionReflow';
 
   @override
   String get spikeHyphenTitle => 'Проверка мягкого переноса';

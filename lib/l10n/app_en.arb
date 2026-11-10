@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appTitle": "FlowReader",
+  "appTitle": "FusionReflow",
   "@appTitle": {
     "description": "Application name shown in the app bar and task switcher."
   },

@@ -1,6 +1,6 @@
-import 'package:flowreader/data/repositories/text_repository.dart';
-import 'package:flowreader/data/services/rust_core_service.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fusionreflow/data/repositories/text_repository.dart';
+import 'package:fusionreflow/data/services/rust_core_service.dart';
 
 class _FakeRustCoreService implements RustCoreService {
   final List<String> calls = [];

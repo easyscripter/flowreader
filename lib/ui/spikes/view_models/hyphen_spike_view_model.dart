@@ -1,6 +1,6 @@
-import 'package:flowreader/data/repositories/text_repository.dart';
-import 'package:flowreader/ui/spikes/spike_text.dart';
-import 'package:flowreader/ui/spikes/view_models/hyphen_spike_state.dart';
+import 'package:fusionreflow/data/repositories/text_repository.dart';
+import 'package:fusionreflow/ui/spikes/spike_text.dart';
+import 'package:fusionreflow/ui/spikes/view_models/hyphen_spike_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'hyphen_spike_view_model.g.dart';

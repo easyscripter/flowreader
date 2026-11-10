@@ -2,7 +2,7 @@
 # cargokit looks for lib<package>.so, and the generated Dart loader uses the same stem.
 # The crate lives in rust/bridge (workspace member "bridge").
 [package]
-name = "rust_lib_flowreader"
+name = "rust_lib_fusionreflow"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

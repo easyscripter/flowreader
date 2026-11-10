@@ -1,4 +1,4 @@
-//! FlowReader core: block format, CBOR codec, text processing and the import
+//! FusionReflow core: block format, CBOR codec, text processing and the import
 //! contract shared by the reader and the PDF converter.
 #![deny(missing_docs)]
 

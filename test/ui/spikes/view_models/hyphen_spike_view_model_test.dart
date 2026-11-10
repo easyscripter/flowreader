@@ -1,9 +1,9 @@
-import 'package:flowreader/data/repositories/text_repository.dart';
-import 'package:flowreader/ui/spikes/spike_text.dart';
-import 'package:flowreader/ui/spikes/view_models/hyphen_spike_state.dart';
-import 'package:flowreader/ui/spikes/view_models/hyphen_spike_view_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fusionreflow/data/repositories/text_repository.dart';
+import 'package:fusionreflow/ui/spikes/spike_text.dart';
+import 'package:fusionreflow/ui/spikes/view_models/hyphen_spike_state.dart';
+import 'package:fusionreflow/ui/spikes/view_models/hyphen_spike_view_model.dart';
 
 class _FakeTextRepository implements TextRepository {
   @override

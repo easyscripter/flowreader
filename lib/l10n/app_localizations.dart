@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// Application name shown in the app bar and task switcher.
   ///
   /// In en, this message translates to:
-  /// **'FlowReader'**
+  /// **'FusionReflow'**
   String get appTitle;
 
   /// Title of the debug-only hyphenation spike screen.
