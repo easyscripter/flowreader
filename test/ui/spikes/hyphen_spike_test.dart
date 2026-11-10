@@ -59,7 +59,9 @@ void main() {
   });
 
   for (final width in [280.0, 360.0]) {
-    testWidgets('golden at ${width.toInt()}', (tester) async {
+    // Pixel output differs between Windows and Linux, so CI skips this tag
+    // (see .github/workflows/ci.yml); it runs locally and in the QA pass.
+    testWidgets('golden at ${width.toInt()}', tags: 'golden', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           debugShowCheckedModeBanner: false,
