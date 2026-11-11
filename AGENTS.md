@@ -63,7 +63,7 @@ FusionReflow — читалка для Android на Flutter: PDF (через з�
 ### 2.1 Код в репозитории
 ```
 lib/                 Flutter-приложение (MVVM, см. 2.2)
-rust/flow-core/      открытое ядро: формат блоков, кодек, переносы, импорт EPUB/FB2, экспорт EPUB
+rust/flow-core/      открытое ядро: формат блоков, кодек, переносы, импорт EPUB/FB2
 rust/bridge/         мост flutter_rust_bridge (Cargo-пакет `rust_lib_fusionreflow`); заглушка конвертера PDF
 rust_builder/        cargokit (сборка Rust для Flutter), не править без причины
 docs/                спеки, решения, отчёты проверок
@@ -108,12 +108,11 @@ rust/flow-core/src/
 ├── model/        формат книги: book, block, inline, resource — ни от чего не зависит
 ├── codec/        CBOR encode/decode, проверка версии — зависит от model
 ├── text/         обработка текста: переносы, нормализация
-├── import/       api (Converter, Progress, ImportError, CancelToken, SourceKind), stub, epub/, fb2/
-└── export/       экспорт в EPUB
+└── import/       api (Converter, Progress, ImportError, CancelToken, SourceKind), stub, epub/, fb2/
 rust/flow-core/tests/          интеграционные тесты по модулям + fixtures/
 rust/flow-core/dictionaries/   данные переносов + NOTICE.md
 ```
-- Зависимости модулей только вниз: `import`/`export` → `model`, `text`; `codec` → `model`; `model` → ничего. Без циклов.
+- Зависимости модулей только вниз: `import` → `model`, `text`; `codec` → `model`; `model` → ничего. Без циклов.
 - `flow-core`: без ввода-вывода по путям и без платформенного кода — только логика и форматы.
 - `bridge`: тонкий слой API для Dart; логика — в `flow-core`, не в мосте.
 - Конвертер получает исходник только как байты / дескриптор файла, без путей.
