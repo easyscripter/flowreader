@@ -63,3 +63,6 @@ corpus/
 
 # Review rounds written by the reviewer session (not committed)
 docs/reviews/
+
+# Output of failed golden comparisons
+test/ui/spikes/failures/

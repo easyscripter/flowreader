@@ -66,7 +66,9 @@ if [ "$dart" -eq 1 ]; then
   # dart analyze, not flutter analyze: only it runs analyzer plugins (riverpod_lint).
   # --fatal-infos: lint findings are "info" and would not fail the run otherwise.
   step dart analyze --fatal-infos
-  step flutter test
+  # Golden pixels differ between platforms, so (like CI) they are not run here.
+  echo "SKIPPED: golden tests (tag 'golden') - pixel output is platform-specific; run in CI and QA" >&2
+  step flutter test --exclude-tags golden
 fi
 
 echo "pre-commit: all checks passed" >&2
