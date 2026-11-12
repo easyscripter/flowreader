@@ -26,7 +26,7 @@ final class RustCoreServiceProvider
         argument: null,
         retry: null,
         name: r'rustCoreServiceProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -53,4 +53,4 @@ final class RustCoreServiceProvider
   }
 }
 
-String _$rustCoreServiceHash() => r'908905dc630780162862a3ef41fd1c0d71ce890c';
+String _$rustCoreServiceHash() => r'a61fc2ab9ad895147fd027d1fbbc8d285bbc616b';

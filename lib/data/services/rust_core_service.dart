@@ -1,3 +1,6 @@
+import 'dart:typed_data';
+
+import 'package:fusionreflow/src/rust/api/book.dart' as rust_book;
 import 'package:fusionreflow/src/rust/api/text.dart' as rust_text;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -13,8 +16,15 @@ class RustCoreService {
 
   /// Inserts soft hyphens (U+00AD) at allowed break points of ru/en words.
   String hyphenate(String text) => rust_text.hyphenate(text: text);
+
+  /// Reads the catalog data (title, authors, hashes) of CBOR-encoded [bytes].
+  ///
+  /// Runs on the bridge's thread pool, so a large book does not block the UI.
+  /// Bridge errors (`FormatError`) are not caught here.
+  Future<rust_book.BookMeta> bookMeta(Uint8List bytes) =>
+      rust_book.bookMeta(bytes: bytes);
 }
 
 /// Provides the [RustCoreService].
-@riverpod
+@Riverpod(keepAlive: true)
 RustCoreService rustCoreService(Ref ref) => const RustCoreService();
