@@ -30,4 +30,7 @@ abstract final class AppSizes {
   static const double listTileMinHeight = 56;
   static const double trackHeight = 4;
   static const double dragHandleWidth = 32;
+  static const double dragHandleHeight = 4;
+  static const double dividerThickness = 1;
+  static const double chipLabelHeight = 16;
 }

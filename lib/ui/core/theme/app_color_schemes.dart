@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 // Роли, которых нет в дизайне, один раз сгенерированы через
 // ColorScheme.fromSeed(seedColor: primary темы) и записаны литералами.
+// Исключение: surfaceContainerLow/-/High подобраны в ряд палитры дизайна
+// между surfaceContainerLowest и surfaceContainerHighest (решение человека).
 
 /// Светлая тема приложения.
 const ColorScheme lightColorScheme = ColorScheme(
@@ -37,9 +39,9 @@ const ColorScheme lightColorScheme = ColorScheme(
   // Тональной заливки по высоте нет: тени только у листа и диалога.
   surfaceTint: Colors.transparent,
   surfaceContainerLowest: Color(0xFFF4F4F9),
-  surfaceContainerLow: Color(0xFFF6F2FA),
-  surfaceContainer: Color(0xFFF0ECF4),
-  surfaceContainerHigh: Color(0xFFEAE7EF),
+  surfaceContainerLow: Color(0xFFF1F2F8),
+  surfaceContainer: Color(0xFFEFF0F6),
+  surfaceContainerHigh: Color(0xFFEDEEF5),
   surfaceContainerHighest: Color(0xFFEAEBF3),
 );
 
@@ -74,8 +76,8 @@ const ColorScheme darkColorScheme = ColorScheme(
   inversePrimary: Color(0xFF5F5791),
   surfaceTint: Colors.transparent,
   surfaceContainerLowest: Color(0xFF0C0F22),
-  surfaceContainerLow: Color(0xFF1C1B20),
-  surfaceContainer: Color(0xFF201F25),
-  surfaceContainerHigh: Color(0xFF2B292F),
+  surfaceContainerLow: Color(0xFF0F1328),
+  surfaceContainer: Color(0xFF12162E),
+  surfaceContainerHigh: Color(0xFF171C3B),
   surfaceContainerHighest: Color(0xFF1C2144),
 );

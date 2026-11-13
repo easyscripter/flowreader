@@ -80,7 +80,7 @@ abstract final class AppTheme {
         // Видимая высота = строка подписи + 2 × вертикальный отступ.
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.s8,
-          vertical: (AppSizes.chipHeight - 16) / 2,
+          vertical: (AppSizes.chipHeight - AppSizes.chipLabelHeight) / 2,
         ),
       ),
       segmentedButtonTheme: SegmentedButtonThemeData(
@@ -119,7 +119,10 @@ abstract final class AppTheme {
           ),
         ),
         showDragHandle: true,
-        dragHandleSize: const Size(AppSizes.dragHandleWidth, 4),
+        dragHandleSize: const Size(
+          AppSizes.dragHandleWidth,
+          AppSizes.dragHandleHeight,
+        ),
         dragHandleColor: s.outlineVariant,
       ),
       snackBarTheme: SnackBarThemeData(
@@ -159,7 +162,10 @@ abstract final class AppTheme {
         linearTrackColor: s.surfaceContainerHighest,
         linearMinHeight: AppSizes.trackHeight,
       ),
-      dividerTheme: DividerThemeData(color: s.outlineVariant, thickness: 1),
+      dividerTheme: DividerThemeData(
+        color: s.outlineVariant,
+        thickness: AppSizes.dividerThickness,
+      ),
     );
   }
 }
